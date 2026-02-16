@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイコン+CPU+メモリ エミュレータ</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <div class="menu">
+    </div>
+    <div class="main">
+        <table class="memory">
+            <tbody>
+                <tr>
+                    <th>RAM</th>
+                    <th>00</th>
+                    <th>01</th>
+                    <th>02</th>
+                    <th>03</th>
+                    <th>04</th>
+                    <th>05</th>
+                    <th>06</th>
+                    <th>07</th>
+                    <th>08</th>
+                    <th>09</th>
+                    <th>0A</th>
+                    <th>0B</th>
+                    <th>0C</th>
+                    <th>0D</th>
+                    <th>0E</th>
+                    <th>0F</th>
+                </tr>
+            </tbody>
+        </table>
+        <table class="param">
+            <tbody>
+            </tbody>
+        </table>
+        <table class="asm">
+            <tbody>
+                <tr>
+                    <th>LINE</th>
+                    <th>命令|ラベル</th>
+                    <th>引数1</th>
+                    <th>引数2</th>
+                </tr>
+            </tbody>
+        </table>
+        <textarea class="output"></textarea>
+        <textarea class="log"></textarea>
+        <table class="io">
+            <tbody>
+                <tr>
+                    <th>GPIO</th>
+                    <th>PA0</th>
+                    <th>PA1</th>
+                    <th>PA2</th>
+                    <th>PA3</th>
+                    <th>PA4</th>
+                    <th>PA5</th>
+                    <th>PA6</th>
+                    <th>PA7</th>
+                    <th>PB0</th>
+                    <th>PB1</th>
+                    <th>PB2</th>
+                    <th>PB3</th>
+                    <th>PB4</th>
+                    <th>PB5</th>
+                    <th>PB6</th>
+                    <th>PB7</th>
+                </tr>
+                <tr>
+                    <th>IN</th>
+                </tr>
+                <tr>
+                    <th>OUT</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="./script.js"></script>
+</body>
+
+</html>

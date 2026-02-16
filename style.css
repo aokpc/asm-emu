@@ -1,0 +1,260 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.menu {
+    display: block;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    user-select: none;
+}
+
+.menu button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    font-size: large;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+.main {
+    width: 100vw;
+    height: 100vh;
+    overflow: scroll;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.main table {
+    border-collapse: collapse;
+    margin: 5px;
+}
+
+.main tbody {
+    margin: 0;
+    padding: 0;
+}
+
+.main tr {
+    padding: 0;
+    margin: 0;
+}
+
+.main tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.main tr:nth-child(even) input {
+    background-color: #f5f5f5;
+}
+
+.main td,
+.main th {
+    text-align: center;
+    padding: 1px;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+@keyframes onceChange {
+    0% {
+        background-color: #ff0000;
+    }
+
+    100% {
+        background-color: #ffb300;
+    }
+}
+
+.memory {
+    display: block;
+    width: 530px;
+    margin: 5px;
+    font-size: small;
+}
+
+.memory tbody {
+    display: block;
+    width: 530px;
+}
+
+.memory td,
+.memory th {
+    width: 30px;
+    border: 1px solid #ddd;
+}
+
+.memory input {
+    text-align: center;
+    font-size: medium;
+    width: 100%;
+    height: 22px;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.memory td.using {
+    animation: onceChange 0.5s ease-out forwards;
+}
+
+.memory td.using input {
+    animation: onceChange 0.5s ease-out forwards;
+}
+
+.memory td.stack,
+.memory td.stack input {
+    background-color: aqua;
+}
+
+.memory td.select,
+.memory td.select input {
+    background-color: blueviolet !important;
+    color: #fff;
+}
+
+.asm {
+    display: block;
+    width: 360px;
+    margin: 5px;
+    padding: 0;
+}
+
+.asm tbody {
+    display: block;
+    width: 360px;
+    text-align: center;
+}
+
+.asm tr.select,
+.asm tr.select input {
+    background-color: #ffb300;
+}
+
+
+.asm th {
+    width: 40px;
+}
+
+.asm td {
+    width: 100px;
+}
+
+.asm input {
+    text-align: center;
+    font-size: medium;
+    font-weight: bolder;
+    width: 100%;
+    height: 22px;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.asm input.op {
+    color: darkblue;
+}
+
+.asm input.label {
+    color: darkgreen;
+}
+
+.asm input.wrong {
+    color: darkred;
+}
+
+.asm input.ascii {
+    color: darkgoldenrod;
+}
+
+.asm input.int {
+    color: darkkhaki;
+}
+
+.asm input.point {
+    color: darkviolet;
+}
+
+.asm input.var {
+    color: darkturquoise;
+}
+
+.asm input:disabled {
+    background-color: #ddd !important;
+}
+
+.param {
+    display: block;
+    margin: 5px;
+    padding: 0;
+}
+
+.param tbody {
+    display: block;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.param th {
+    width: 180px;
+}
+
+.param td {
+    width: 70px;
+}
+
+.param input {
+    text-align: center;
+    font-size: medium;
+    width: 100%;
+    height: 22px;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+textarea {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    min-height: 250px;
+    word-wrap: break-word;
+    display: block;
+    margin: 5px;
+    border: 1px solid;
+    padding: 8px;
+    background-color: black;
+}
+
+textarea.output {
+    color: #41ff47;
+}
+
+textarea.log {
+    color: #ffac41;
+}
+
+.io td,
+.io th {
+    min-width: 50px;
+    text-align: center;
+}
+
+.io input[type="checkbox"] {
+    height: 20px;
+    width: 100%;
+    accent-color: #ff0000;
+}
+
+.io input[type="checkbox"]:disabled {
+    border-color: #ff0000;
+    background-color: #ff0000;
+    accent-color: #ff0000;
+    color: #ff0000;
+}
