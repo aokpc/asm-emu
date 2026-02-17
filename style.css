@@ -155,6 +155,35 @@ body {
 
 .asm td {
     width: 100px;
+    position: relative;
+}
+
+
+.asm .sug {
+    background-color: #ccc;
+    text-align: start;
+    z-index: 100;
+    position: absolute;
+    left: 0;
+    max-height: 100px;
+    min-width: 100px;
+    overflow-y: scroll;
+}
+
+.asm .sug div {
+    border-bottom: 1px solid;
+    padding: 1px;
+    height: 24px;
+    cursor: pointer;
+}
+
+
+.asm .sug.up {
+    bottom: 20px;
+}
+
+.asm .sug.down {
+    top: 20px;
 }
 
 .asm textarea {
@@ -173,12 +202,15 @@ body {
 }
 
 .asm textarea {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE, Edge */
 }
 
 .asm textarea::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none;
+    /* Chrome, Safari */
 }
 
 .asm textarea.op {

@@ -15,6 +15,34 @@ let notSave = false;
 
 
 const syntax = {
+    ops: [
+        "adc",
+        "add",
+        "and",
+        "call",
+        "cmp",
+        "dec",
+        "inc",
+        "jc",
+        "jmp",
+        "jnc",
+        "jnz",
+        "jz",
+        "lsl",
+        "lsr",
+        "mov",
+        "mul",
+        "neg",
+        "not",
+        "or",
+        "printc",
+        "printn",
+        "push",
+        "ret",
+        "sbc",
+        "sub",
+        "xor"
+    ],
     op: {
         take0p: ["ret"],
         take1p: ["inc", "dec", "neg", "not", "lsr", "lsl"],
@@ -228,7 +256,7 @@ const asm = {
      */
     ops: [],
     /**
-     * @type {[HTMLTableHeaderCellElement,HTMLInputElement,HTMLInputElement,HTMLInputElement,HTMLTableRowElement][]}
+     * @type {[HTMLTableHeaderCellElement,HTMLTextAreaElement,HTMLTextAreaElement,HTMLTextAreaElement,HTMLTableRowElement][]}
      */
     cells: [],
     /**
@@ -250,6 +278,11 @@ const asm = {
             this.cells[pos][4].classList.add("select");
         }
     },
+    /**
+     * @type {HTMLDivElement}
+     */
+    sug: asmParent.querySelector(".sug"),
+    sugTarget: null,
     init() {
         const load = JSON.parse(localStorage.getItem("asm") || "[]")
         if (load.length) {
@@ -262,6 +295,39 @@ const asm = {
         }
         this.fixTH();
         this.focus(param.params.PC.value);
+        this.sug.style.display = "none";
+        this.sug.childNodes.forEach(e => {
+            e.addEventListener("pointerdown", () => {
+                console.log(e.textContent);
+                if (this.sugTarget) {
+                    this.sugTarget.value = e.textContent;
+                    const s = this.sugTarget;
+                    setTimeout(()=>s.focus());
+                }
+            })
+        })
+    },
+    /**
+     * @param {HTMLInputElement} input 
+     * @param {HTMLTableCellElement} td
+     */
+    suggest(input, td) {
+        this.sugTarget = input;
+        td.appendChild(this.sug);
+        this.sug.style.display = "block";
+        const v = input.value;
+        let i = 0;
+        for (i = 0; i < syntax.ops.length; i++) {
+            if (syntax.ops[i] >= v) {
+                console.log(i, v, syntax.ops[i]);
+                break;
+            }
+        }
+        this.sug.scroll(0, i * 27);
+    },
+    unsuggest() {
+        this.sugTarget = null;
+        this.sug.style.display = "none";
     },
     fixTH() {
         this.cells.forEach((e, i) => {
@@ -290,6 +356,10 @@ const asm = {
         input2.addEventListener("paste", this.onpaste.bind(this, input2, 1, ops));
         input3.addEventListener("paste", this.onpaste.bind(this, input3, 2, ops));
         input1.addEventListener("input", this.onupdate.bind(this, input1, 0, ops, cells));
+
+        input1.addEventListener("input", this.suggest.bind(this, input1, td1));
+        input1.addEventListener("focusout", this.unsuggest.bind(this));
+
         input2.addEventListener("input", this.onupdate.bind(this, input2, 1, ops, cells));
         input3.addEventListener("input", this.onupdate.bind(this, input3, 2, ops, cells));
         input1.addEventListener("focus", this.onupdate.bind(this, input1, 0, ops, cells));
@@ -1082,8 +1152,8 @@ function runCPUFast() {
     // 2. 実行ループ
     while ((pc < codeData.length) || !runstop) {
 
-        if (ct > 100000) {
-            logs.push(`limit 100000`);
+        if (ct > 10_000_000) {
+            logs.push(`limit 10,000,000`);
             break;
         }
 
