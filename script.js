@@ -16,6 +16,7 @@ let notSave = false;
 
 const syntax = {
     ops: [
+        "#string",
         "adc",
         "add",
         "and",
@@ -41,9 +42,10 @@ const syntax = {
         "ret",
         "sbc",
         "sub",
-        "xor"
+        "xor",
     ],
     op: {
+        runnerOp: ["#define", "#string"],
         take0p: ["ret"],
         take1p: ["inc", "dec", "neg", "not", "lsr", "lsl"],
         take1pORv: ["printn", "printc", "push",],
@@ -251,6 +253,7 @@ const memory = {
 memory.init();
 
 const asm = {
+    defines: {},
     /**
      * @type {[string,string,string][]}
      */
@@ -302,7 +305,7 @@ const asm = {
                 if (this.sugTarget) {
                     this.sugTarget.value = e.textContent;
                     const s = this.sugTarget;
-                    setTimeout(()=>s.focus());
+                    setTimeout(() => s.focus());
                 }
             })
         })
@@ -457,6 +460,11 @@ const asm = {
                     cells[2].className = "wrong";
                 }
                 if (this.type(ops[2]) !== "v" && this.type(ops[2]) !== "p") {
+                    cells[3].className = "wrong";
+                }
+            } else if (syntax.op.runnerOp.includes(input.value)) {
+                input.className = "rop";
+                if (this.type(ops[2]) !== "p") {
                     cells[3].className = "wrong";
                 }
             } else input.className = "wrong";
@@ -756,6 +764,14 @@ const menu = {
                 asm.clear();
             }
         },
+        {
+            name: "DOCS", cb: () => {
+                if (!menu.docs || menu.docs.closed) {
+                    menu.docs = open("./docs.html");
+                }
+                menu.docs.focus();
+            }
+        },
         { name: "LOAD", cb: load },
         { name: "SAVE", cb: save },
     ],
@@ -788,7 +804,11 @@ const menu = {
                 location.reload();
             })
         })
-    }
+    },
+    /**
+     * @type {Window}
+     */
+    docs: null,
 }
 menu.init();
 
@@ -881,6 +901,12 @@ function runCPU(is1step = false) {
 
             // 命令デコード
             switch (op) {
+                case '#string':
+                    var bf = new TextEncoder().encode(arg1);
+                    memoryArray.set(bf, parseInt(arg2, 16));
+                    memoryArray[parseInt(arg2, 16) + bf.length] = 0;
+                    ct--;
+                    break;
                 case 'mov':
                     var val = getVal(arg2, memoryArray);
 
@@ -1050,7 +1076,8 @@ function runCPU(is1step = false) {
                     break;
                 default:
                     ct--;
-                    logs.push(`WARN: UNKNOWN OP`)
+                    logs.push(`WARN: UNKNOWN OP`);
+                    break;
             }
 
             // フラグ更新
@@ -1182,6 +1209,13 @@ function runCPUFast() {
 
         // 命令デコード
         switch (op) {
+            case '#string':
+                var bf = new TextEncoder().encode(arg1);
+                memoryArray.set(bf, parseInt(arg2, 16));
+                memoryArray[parseInt(arg2, 16) + bf.length] = 0;
+                ct--;
+                break;
+
             case 'mov':
                 var val = getVal(arg2, memoryArray);
 
