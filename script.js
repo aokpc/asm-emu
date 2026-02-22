@@ -13,7 +13,6 @@ const ioINBParent = document.querySelector("table.iob tbody tr:nth-child(2)")
 
 let notSave = false;
 
-
 const syntax = {
     ops: [
         "#string",
@@ -97,10 +96,14 @@ const param = {
         this.save();
     },
     init() {
-        const load = JSON.parse(localStorage.getItem("param") || "{}")
-        Object.keys(load).forEach(k => {
-            this.params[k].value = load[k];
-        })
+        try {
+            const load = JSON.parse(localStorage.getItem("param") || "{}")
+            Object.keys(load).forEach(k => {
+                this.params[k].value = load[k];
+            })
+        } catch (_) {
+
+        }
         Object.values(this.params).forEach(e => {
             e.input = this.createParamInputRow(e);
         })
@@ -173,8 +176,10 @@ const memory = {
      */
     cells: [],
     init() {
-        const load = JSON.parse(localStorage.getItem("memory") || "[]")
-        this.value.set(load);
+        try {
+            const load = JSON.parse(localStorage.getItem("memory") || "[]")
+            this.value.set(load);
+        } catch { }
         this.createMemory256DoubleInputCell();
         this.update();
     },
@@ -274,6 +279,17 @@ const asm = {
         else if (syntax.regexp.var.test(s)) return "p";
         return "notype";
     },
+    /**
+     * @param {string} s 
+     */
+    typex(s) {
+        if (!s) return "n";
+        else if (syntax.regexp.cAscii.test(s)) return "c";
+        else if (syntax.regexp.cInt.test(s)) return "c";
+        else if (syntax.regexp.vPoint.test(s)) return "p";
+        else if (syntax.regexp.var.test(s)) return "v";
+        return "n";
+    },
     focus(pos = -1) {
         const old = asmParent.querySelector(".select");
         if (old) old.classList.remove("select");
@@ -287,11 +303,14 @@ const asm = {
     sug: asmParent.querySelector(".sug"),
     sugTarget: null,
     init() {
-        const load = JSON.parse(localStorage.getItem("asm") || "[]")
-        if (load.length) {
+        try {
+            const load = JSON.parse(localStorage.getItem("asm") || "[]");
+            if (!load.length) {
+                throw 0;
+            }
             load.forEach((e, i) => this.createAsmInputRow(i, ...e));
             this.save();
-        } else {
+        } catch {
             this.createAsmInputRow();
             this.createAsmInputRow();
             this.createAsmInputRow();
@@ -767,13 +786,31 @@ const menu = {
         {
             name: "DOCS", cb: () => {
                 if (!menu.docs || menu.docs.closed) {
-                    menu.docs = open("./docs.html");
+                    if (window.iscached) {
+                        menu.docs = open();
+                        fetch("./docs.html").then(r => r.text()).then(t => {
+                            menu.docs.document.body.innerHTML = t;
+                        });
+                    } else {
+                        menu.docs = open("./docs.html");
+                    }
+
                 }
                 menu.docs.focus();
             }
         },
         { name: "LOAD", cb: load },
         { name: "SAVE", cb: save },
+        {
+            name: "COPY", cb: () => {
+                const ta = document.createElement("textarea");
+                ta.textContent = asm.ops.map(e => e.join(",")).join("\n");
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+        }
     ],
     init() {
         this.menus.forEach(e => {
@@ -801,7 +838,18 @@ const menu = {
                 localStorage.setItem("asm", vasm);
                 localStorage.setItem("memory", vmemory);
                 localStorage.setItem("param", vparam);
-                location.reload();
+
+                if (window.iscached) {
+                    fetch("./index2.html").then(r => r.text()).then(t => {
+                        const w = open();
+                        w.$$cached = $$cached;
+                        w.document.write(t);
+                        w.document.close();
+                        close();
+                    });
+                } else {
+                    location.reload();
+                }
             })
         })
     },
@@ -822,6 +870,18 @@ function getVal(operand, memArray) {
         return memArray[realAddr];
     }
     if (operand.startsWith('0x')) return memArray[parseInt(operand, 16)]; // 0x10 -> メモリの値
+    return 0;
+}
+
+function getBal(operand) {
+    if (typeof operand !== 'string' || operand === "") return 0;
+    if (operand.startsWith('#')) return parseInt(operand.slice(1)); // #10 -> 10
+    if (operand.startsWith('"')) return operand.charCodeAt(1);      // "A" -> 65
+    if (operand.startsWith('*')) {                                  // *0x10 (間接参照)
+        const ptrAddr = parseInt(operand.slice(1), 16);
+        return ptrAddr
+    }
+    if (operand.startsWith('0x')) return parseInt(operand, 16); // 0x10 -> メモリの値
     return 0;
 }
 
@@ -915,8 +975,9 @@ function runCPU(is1step = false) {
 
                 case 'add':
                     var val = getVal(arg2, memoryArray);
-                    memoryArray[addr] = (memoryArray[addr] + val) % 256;
-
+                    var result = memoryArray[addr] + val;
+                    memoryArray[addr] = result % 256;
+                    cf = (result > 255) ? 1 : 0;
                     lastResult = memoryArray[addr];
                     break;
 
@@ -1224,8 +1285,9 @@ function runCPUFast() {
 
             case 'add':
                 var val = getVal(arg2, memoryArray);
-                memoryArray[addr] = (memoryArray[addr] + val) % 256;
-
+                var result = memoryArray[addr] + val;
+                memoryArray[addr] = result % 256;
+                cf = (result > 255) ? 1 : 0;
                 lastResult = memoryArray[addr];
                 break;
 
@@ -1368,7 +1430,7 @@ function runCPUFast() {
             case 'ret': // 関数から復帰
                 sp++;
                 pc = memoryArray[sp];
-                console.log("RET", pc, sp, is1step);
+                console.log("RET", pc, sp);
                 continue;
 
             case 'push': // スタックへ値を保存
@@ -1416,7 +1478,6 @@ function runCPUFast() {
     param.update();
 }
 
-
 function save() {
     const fnm = prompt("ファイル名", new Date().toLocaleString().replaceAll(/( |\/)/g, "_") + ".hf");
     if (!fnm) {
@@ -1443,7 +1504,17 @@ function load() {
                 localStorage.setItem("asm", vasm)
                 localStorage.setItem("memory", vmemory)
                 localStorage.setItem("param", vparam)
-                location.reload();
+                if (window.iscached) {
+                    fetch("./index2.html").then(r => r.text()).then(t => {
+                        const w = open();
+                        w.$$cached = $$cached;
+                        w.document.write(t);
+                        w.document.close();
+                        close();
+                    });
+                } else {
+                    location.reload();
+                }
             })
         }
     };
