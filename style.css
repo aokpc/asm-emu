@@ -133,6 +133,8 @@ body {
 .asm {
     display: block;
     width: 360px;
+    max-height: 700px;
+    overflow-y: scroll;
     margin: 5px;
     padding: 0;
 }

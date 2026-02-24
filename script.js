@@ -35,6 +35,7 @@ const syntax = {
         "neg",
         "not",
         "or",
+        "pop",
         "printc",
         "printn",
         "push",
@@ -46,7 +47,7 @@ const syntax = {
     op: {
         runnerOp: ["#define", "#string"],
         take0p: ["ret"],
-        take1p: ["inc", "dec", "neg", "not", "lsr", "lsl"],
+        take1p: ["inc", "dec", "neg", "not", "lsr", "lsl", "pop"],
         take1pORv: ["printn", "printc", "push",],
         take2p: ["mov", "add", "adc", "cmp", "mul", "sub", "sbc", "and", "or", "xor",],
         take1l: ["jz", "jnz", "jc", "jnc", "jmp", "call"],
@@ -192,7 +193,6 @@ const memory = {
                 n.value = "00";
                 s.value = ".";
             } else if (Number(n.value) !== v) {
-                d.classList.remove("using");
                 d.classList.add("using");
                 n.value = v.toString(16).padStart(2, "0").toUpperCase();
                 if (v >= 32 && v <= 126) {
@@ -799,8 +799,25 @@ const menu = {
                 menu.docs.focus();
             }
         },
-        { name: "LOAD", cb: load },
-        { name: "SAVE", cb: save },
+        {
+            name: "C", cb: () => {
+                if (!menu.C || menu.C.closed) {
+                    if (window.iscached) {
+                        menu.C = open();
+                        fetch("./c.html").then(r => r.text()).then(t => {
+                            menu.C.document.write(t);
+                            menu.C.document.close();
+                        });
+                    } else {
+                        menu.docs = open("./c.html");
+                    }
+
+                }
+                menu.docs.focus();
+            }
+        },
+        { name: "LOAD", cb: () => window.load() },
+        { name: "SAVE", cb: () => save() },
         {
             name: "COPY", cb: () => {
                 const ta = document.createElement("textarea");
@@ -841,6 +858,13 @@ const menu = {
 
                 if (window.iscached) {
                     fetch("./index2.html").then(r => r.text()).then(t => {
+                        window.load = () => {
+                            const w = open();
+                            w.$$cached = $$cached;
+                            w.document.write(t);
+                            w.document.close();
+                            close();
+                        };
                         const w = open();
                         w.$$cached = $$cached;
                         w.document.write(t);
@@ -857,6 +881,11 @@ const menu = {
      * @type {Window}
      */
     docs: null,
+
+    /**
+     * @type {Window}
+     */
+    C: null,
 }
 menu.init();
 
@@ -1492,7 +1521,7 @@ function save() {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-function load() {
+function _load() {
     const i = document.createElement("input")
     i.type = "file";
     i.accept = ".hf";
@@ -1506,6 +1535,13 @@ function load() {
                 localStorage.setItem("param", vparam)
                 if (window.iscached) {
                     fetch("./index2.html").then(r => r.text()).then(t => {
+                        window.load = () => {
+                            const w = open();
+                            w.$$cached = $$cached;
+                            w.document.write(t);
+                            w.document.close();
+                            close();
+                        };
                         const w = open();
                         w.$$cached = $$cached;
                         w.document.write(t);
@@ -1520,3 +1556,4 @@ function load() {
     };
     i.click();
 }
+window.load = _load;
