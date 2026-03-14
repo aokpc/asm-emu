@@ -39,6 +39,7 @@ const syntax = {
         "printc",
         "printn",
         "push",
+        "rand",
         "ret",
         "sbc",
         "sub",
@@ -47,7 +48,7 @@ const syntax = {
     op: {
         runnerOp: ["#define", "#string"],
         take0p: ["ret"],
-        take1p: ["inc", "dec", "neg", "not", "lsr", "lsl", "pop"],
+        take1p: ["inc", "dec", "neg", "not", "lsr", "lsl", "pop", "rand"],
         take1pORv: ["printn", "printc", "push",],
         take2p: ["mov", "add", "adc", "cmp", "mul", "sub", "sbc", "and", "or", "xor",],
         take1l: ["jz", "jnz", "jc", "jnc", "jmp", "call"],
@@ -1164,6 +1165,11 @@ function runCPU(is1step = false) {
                     memoryArray[addr] = memoryArray[sp];
                     lastResult = memoryArray[addr];
                     break;
+
+                case 'rand':
+                    memoryArray[addr] = Math.floor(Math.random() * 256);
+                    lastResult = memoryArray[addr];
+                    break;
                 default:
                     ct--;
                     logs.push(`WARN: UNKNOWN OP`);
@@ -1473,6 +1479,12 @@ function runCPUFast() {
                 memoryArray[addr] = memoryArray[sp];
                 lastResult = memoryArray[addr];
                 break;
+
+            case 'rand':
+                memoryArray[addr] = Math.floor(Math.random() * 256);
+                lastResult = memoryArray[addr];
+                break;
+
             default:
                 ct--;
                 logs.push(`WARN: UNKNOWN OP`)
